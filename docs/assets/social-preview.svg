@@ -1,0 +1,45 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1280 640" role="img" aria-labelledby="title desc">
+  <title id="title">Codex Self-Hosted Web Monitor social preview</title>
+  <desc id="desc">A social preview image styled after the production dashboard.</desc>
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="1280" y2="640" gradientUnits="userSpaceOnUse">
+      <stop offset="0" stop-color="#17111f"/>
+      <stop offset="1" stop-color="#251c2d"/>
+    </linearGradient>
+    <linearGradient id="accent" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#f28aaa"/>
+      <stop offset="1" stop-color="#c99af4"/>
+    </linearGradient>
+    <style>
+      .ui { font-family: ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; }
+      .title { font-size: 58px; font-weight: 900; fill: #f4edf8; }
+      .sub { font-size: 25px; font-weight: 650; fill: #c9bfd5; }
+      .tiny { font-size: 14px; font-weight: 800; fill: #c9bfd5; }
+      .panel { fill: #1f1827; stroke: #5a4868; stroke-width: 2; }
+      .grid { stroke: #3c3248; stroke-width: 2; }
+    </style>
+  </defs>
+  <rect width="1280" height="640" fill="url(#bg)"/>
+  <g class="ui">
+    <rect x="58" y="58" width="1164" height="524" rx="28" class="panel"/>
+    <rect x="104" y="108" width="112" height="112" rx="22" fill="#f4edf8"/>
+    <rect x="124" y="128" width="72" height="72" rx="16" fill="#24304a"/>
+    <path d="M138 176c17-40 31-40 48 0 14-28 28-34 42-14" fill="none" stroke="#6ee7d8" stroke-width="8" stroke-linecap="round"/>
+    <circle cx="178" cy="146" r="12" fill="none" stroke="#6ee7d8" stroke-width="8"/>
+    <text x="256" y="144" class="title">Codex Self-Hosted</text>
+    <text x="256" y="206" class="title">Web Monitor</text>
+    <text x="258" y="260" class="sub">Local dashboard for Codex credits, tokens, account limits, and release updates.</text>
+    <rect x="104" y="318" width="402" height="174" rx="14" fill="#18121f" stroke="#51405f"/>
+    <text x="130" y="354" class="tiny">SELECTED RANGE CREDITS</text>
+    <text x="130" y="414" font-size="54" font-weight="900" fill="#f4edf8">43.7K credits</text>
+    <text x="130" y="454" class="sub">2B tokens, 93% cache hit</text>
+    <rect x="550" y="318" width="598" height="174" rx="14" fill="#18121f" stroke="#51405f"/>
+    <line x1="586" y1="360" x2="1110" y2="360" class="grid"/>
+    <line x1="586" y1="416" x2="1110" y2="416" class="grid"/>
+    <line x1="586" y1="472" x2="1110" y2="472" class="grid"/>
+    <path d="M586 472 C612 350 642 332 672 420 S734 348 750 340 S788 476 826 472 S874 354 904 368 S948 328 980 442 S1034 472 1068 472 S1094 386 1110 400" fill="none" stroke="#f28aaa" stroke-width="6"/>
+    <path d="M586 468 C652 466 682 466 716 468 S786 452 820 468 S904 448 940 468 S1030 456 1110 468" fill="none" stroke="#c99af4" stroke-width="7"/>
+    <rect x="1038" y="108" width="104" height="34" rx="17" fill="#271f31" stroke="#735c87"/>
+    <text x="1070" y="130" class="tiny">v0.16.0</text>
+  </g>
+</svg>

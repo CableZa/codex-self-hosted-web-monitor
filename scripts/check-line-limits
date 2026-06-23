@@ -1,0 +1,164 @@
+#!/usr/bin/env python3
+from __future__ import annotations
+
+import argparse
+from pathlib import Path
+
+DEFAULT_LIMIT = 700
+IGNORED_DIRS = {
+    ".git",
+    ".mypy_cache",
+    ".pytest_cache",
+    ".ruff_cache",
+    ".venv",
+    "__pycache__",
+    "coverage",
+    "dist",
+    "node_modules",
+    "runtime",
+}
+IGNORED_PATHS = {
+    "package-lock.json",
+    "static/assets",
+}
+CHECKED_SUFFIXES = {
+    ".css",
+    ".html",
+    ".js",
+    ".jsx",
+    ".json",
+    ".md",
+    ".ps1",
+    ".py",
+    ".sh",
+    ".sql",
+    ".ts",
+    ".tsx",
+    ".yaml",
+    ".yml",
+}
+LINE_COMMENT_PREFIXES = {
+    ".css": ("//",),
+    ".js": ("//",),
+    ".jsx": ("//",),
+    ".ps1": ("#",),
+    ".py": ("#",),
+    ".sh": ("#",),
+    ".sql": ("--",),
+    ".ts": ("//",),
+    ".tsx": ("//",),
+    ".yaml": ("#",),
+    ".yml": ("#",),
+}
+C_STYLE_BLOCK_SUFFIXES = {".css", ".js", ".jsx", ".ts", ".tsx"}
+HTML_BLOCK_SUFFIXES = {".html", ".md"}
+
+
+def is_ignored(path: Path) -> bool:
+    parts = path.parts
+    if any(part in IGNORED_DIRS for part in parts):
+        return True
+    return any(path == Path(ignored) or Path(ignored) in path.parents for ignored in IGNORED_PATHS)
+
+
+def remove_c_style_blocks(stripped: str, in_block: bool) -> tuple[str, bool]:
+    while True:
+        if in_block:
+            end = stripped.find("*/")
+            if end == -1:
+                return "", True
+            stripped = stripped[end + 2 :].strip()
+            in_block = False
+            if not stripped:
+                return "", False
+        start = stripped.find("/*")
+        line_comment = stripped.find("//")
+        if start == -1 or (line_comment != -1 and line_comment < start):
+            return stripped, in_block
+        before = stripped[:start].strip()
+        end = stripped.find("*/", start + 2)
+        if end == -1:
+            return before, True
+        stripped = f"{before} {stripped[end + 2:]}".strip()
+
+
+def remove_html_blocks(stripped: str, in_block: bool) -> tuple[str, bool]:
+    while True:
+        if in_block:
+            end = stripped.find("-->")
+            if end == -1:
+                return "", True
+            stripped = stripped[end + 3 :].strip()
+            in_block = False
+            if not stripped:
+                return "", False
+        start = stripped.find("<!--")
+        if start == -1:
+            return stripped, in_block
+        before = stripped[:start].strip()
+        end = stripped.find("-->", start + 4)
+        if end == -1:
+            return before, True
+        stripped = f"{before} {stripped[end + 3:]}".strip()
+
+
+def code_line_count(path: Path) -> int:
+    suffix = path.suffix
+    c_block = False
+    html_block = False
+    count = 0
+    try:
+        lines = path.read_text(encoding="utf-8").splitlines()
+    except UnicodeDecodeError:
+        lines = path.read_text(errors="ignore").splitlines()
+    for line in lines:
+        stripped = line.strip()
+        if not stripped:
+            continue
+        if suffix in C_STYLE_BLOCK_SUFFIXES:
+            stripped, c_block = remove_c_style_blocks(stripped, c_block)
+        if suffix in HTML_BLOCK_SUFFIXES:
+            stripped, html_block = remove_html_blocks(stripped, html_block)
+        if not stripped:
+            continue
+        if any(stripped.startswith(prefix) for prefix in LINE_COMMENT_PREFIXES.get(suffix, ())):
+            continue
+        count += 1
+    return count
+
+
+def checked_files(root: Path) -> list[Path]:
+    return sorted(
+        path
+        for path in root.rglob("*")
+        if path.is_file()
+        and path.suffix in CHECKED_SUFFIXES
+        and not is_ignored(path.relative_to(root))
+    )
+
+
+def main() -> int:
+    parser = argparse.ArgumentParser(description="Fail when maintained files exceed the code line limit.")
+    parser.add_argument("--limit", type=int, default=DEFAULT_LIMIT)
+    parser.add_argument("--top", type=int, default=20)
+    parser.add_argument("root", nargs="?", default=".")
+    args = parser.parse_args()
+
+    root = Path(args.root).resolve()
+    rows = sorted(((code_line_count(path), path.relative_to(root)) for path in checked_files(root)), reverse=True)
+    offenders = [(count, path) for count, path in rows if count > args.limit]
+    if offenders:
+        print(f"Files over {args.limit} code lines, excluding blank and comment-only lines:")
+        for count, path in offenders:
+            print(f"{count:5} {path}")
+        return 1
+
+    print(f"All checked files are at or below {args.limit} code lines.")
+    print(f"Top {min(args.top, len(rows))} largest checked files:")
+    for count, path in rows[: args.top]:
+        print(f"{count:5} {path}")
+    return 0
+
+
+if __name__ == "__main__":
+    raise SystemExit(main())

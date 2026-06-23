@@ -1,0 +1,29 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
+HEALTH_URL="${MONITOR_HEALTH_URL:-http://127.0.0.1:18787/healthz}"
+
+if command -v docker-compose >/dev/null 2>&1; then
+  COMPOSE=(docker-compose)
+elif docker compose version >/dev/null 2>&1; then
+  COMPOSE=(docker compose)
+else
+  echo "docker-compose or docker compose is required." >&2
+  exit 1
+fi
+
+cd "$ROOT"
+
+"${COMPOSE[@]}" up --build -d monitor scanner valkey
+
+if command -v curl >/dev/null 2>&1; then
+  curl_args=(-fsS --retry 20 --retry-delay 2 --retry-connrefused)
+  if curl --help all 2>/dev/null | grep -q -- "--retry-all-errors"; then
+    curl_args+=(--retry-all-errors)
+  fi
+  curl "${curl_args[@]}" "$HEALTH_URL"
+  echo
+else
+  echo "curl is not installed. Open $HEALTH_URL to check the monitor."
+fi

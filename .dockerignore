@@ -1,0 +1,11 @@
+.git
+.coverage
+.env
+__pycache__/
+*.pyc
+node_modules/
+frontend/node_modules/
+monitor.sqlite3
+*.sqlite3
+certs/
+reports/

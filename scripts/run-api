@@ -1,0 +1,18 @@
+#!/usr/bin/env sh
+set -eu
+
+WORKERS="${MONITOR_API_WORKERS:-1}"
+
+case "$WORKERS" in
+  ''|*[!0-9]*)
+    echo "MONITOR_API_WORKERS must be a positive integer." >&2
+    exit 1
+    ;;
+esac
+
+if [ "$WORKERS" -lt 1 ]; then
+  echo "MONITOR_API_WORKERS must be at least 1." >&2
+  exit 1
+fi
+
+exec python -m uvicorn monitor_service:app --host 0.0.0.0 --port 8787 --workers "$WORKERS"

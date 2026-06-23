@@ -1,0 +1,26 @@
+__pycache__/
+*.py[cod]
+.coverage
+.DS_Store
+node_modules/
+.npm/
+*.tsbuildinfo
+
+# Local/generated artifacts.
+codex_usage.zip
+daily_tokens_*.csv
+daily_tokens_*.svg
+certs/*.pem
+notes.md
+monitor.sqlite3
+*.sqlite
+*.sqlite-shm
+*.sqlite-wal
+.monitor-local.pid
+monitor-local.stdout.log
+monitor-local.stderr.log
+runtime/*.json
+runtime/usage-dump-*/
+
+# Local environment files.
+.env

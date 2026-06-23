@@ -1,0 +1,26 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
+SKIP_PULL=0
+
+for arg in "$@"; do
+  case "$arg" in
+    --skip-pull)
+      SKIP_PULL=1
+      ;;
+    *)
+      echo "Unknown argument: $arg" >&2
+      echo "Usage: scripts/update-and-redeploy [--skip-pull]" >&2
+      exit 2
+      ;;
+  esac
+done
+
+cd "$ROOT"
+
+if [[ "$SKIP_PULL" -eq 0 ]]; then
+  git pull --ff-only
+fi
+
+exec "$ROOT/scripts/redeploy"

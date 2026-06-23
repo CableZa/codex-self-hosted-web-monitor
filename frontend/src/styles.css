@@ -1,0 +1,137 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  color-scheme: light dark;
+  --color-canvas: 247 245 252;
+  --color-panel: 255 252 255;
+  --color-border: 214 207 226;
+  --color-ink: 25 23 32;
+  --color-muted: 92 86 103;
+  --color-brand: 124 95 177;
+  --color-accent: 180 128 196;
+  --color-danger: 220 38 38;
+  --color-live: 22 163 74;
+  --color-credit: 185 28 28;
+  --color-input: 124 95 177;
+  --color-cached-input: 136 57 239;
+  --color-output: 185 91 148;
+  --color-surface-rail: 239 233 248;
+}
+
+:root[data-ui-theme="classic"] {
+  --color-canvas: 246 247 242;
+  --color-panel: 255 255 255;
+  --color-border: 209 213 219;
+  --color-ink: 20 24 22;
+  --color-muted: 87 94 89;
+  --color-brand: 4 120 87;
+  --color-accent: 234 88 12;
+  --color-danger: 220 38 38;
+  --color-live: 22 163 74;
+  --color-credit: 185 28 28;
+  --color-input: 4 120 87;
+  --color-cached-input: 79 70 229;
+  --color-output: 202 81 0;
+  --color-surface-rail: 236 239 233;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    --color-canvas: 20 18 26;
+    --color-panel: 31 28 39;
+    --color-border: 72 64 87;
+    --color-ink: 239 236 246;
+    --color-muted: 190 181 202;
+    --color-brand: 203 166 247;
+    --color-accent: 245 194 231;
+    --color-danger: 243 139 168;
+    --color-live: 166 227 161;
+    --color-credit: 243 139 168;
+    --color-input: 203 166 247;
+    --color-cached-input: 180 190 254;
+    --color-output: 250 179 135;
+    --color-surface-rail: 28 24 36;
+  }
+
+  :root[data-ui-theme="classic"] {
+    --color-canvas: 17 19 17;
+    --color-panel: 28 31 28;
+    --color-border: 59 65 59;
+    --color-ink: 240 243 238;
+    --color-muted: 178 186 176;
+    --color-brand: 52 211 153;
+    --color-accent: 249 115 22;
+    --color-danger: 248 113 113;
+    --color-live: 74 222 128;
+    --color-credit: 248 113 113;
+    --color-input: 52 211 153;
+    --color-cached-input: 129 140 248;
+    --color-output: 251 146 60;
+    --color-surface-rail: 23 27 24;
+  }
+}
+
+* {
+  box-sizing: border-box;
+}
+
+html {
+  background: rgb(var(--color-canvas));
+}
+
+body {
+  margin: 0;
+  min-width: 320px;
+  background:
+    linear-gradient(180deg, rgb(var(--color-surface-rail) / 0.65), transparent 18rem),
+    rgb(var(--color-canvas));
+  color: rgb(var(--color-ink));
+  font-family: Aptos, "Segoe UI Variable", "Segoe UI", ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, sans-serif;
+  font-variant-numeric: tabular-nums;
+}
+
+code,
+pre,
+.font-mono {
+  font-family: "SFMono-Regular", "Cascadia Code", "Roboto Mono", ui-monospace, monospace;
+}
+
+button,
+input,
+select {
+  font: inherit;
+}
+
+button:focus-visible,
+input:focus-visible,
+select:focus-visible {
+  outline: 2px solid rgb(var(--color-brand));
+  outline-offset: 2px;
+}
+
+.form-control {
+  min-height: 2.5rem;
+  line-height: 1.25rem;
+}
+
+.break-anywhere {
+  overflow-wrap: anywhere;
+  word-break: break-word;
+}
+
+.recharts-tooltip-wrapper {
+  outline: none;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.001ms !important;
+    animation-iteration-count: 1 !important;
+    scroll-behavior: auto !important;
+    transition-duration: 0.001ms !important;
+  }
+}

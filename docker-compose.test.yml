@@ -1,0 +1,21 @@
+services:
+  backend-test:
+    build:
+      context: .
+      target: monitor
+    environment:
+      CODEX_HOME: /tmp/codex-empty
+      MONITOR_DB: /tmp/monitor-test.sqlite3
+      VALKEY_URL: redis://127.0.0.1:1/0
+      SCANNER_ENABLED: "false"
+      UPDATE_STATUS_PATH: /tmp/update-status.json
+      PYTHONDONTWRITEBYTECODE: "1"
+    volumes:
+      - .:/app
+    command: ["sh", "-c", "scripts/check-line-limits && python -m unittest discover -s tests"]
+
+  frontend-test:
+    build:
+      context: .
+      target: frontend-check
+    command: ["true"]

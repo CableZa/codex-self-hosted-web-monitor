@@ -1,0 +1,10 @@
+#!/usr/bin/env sh
+set -eu
+
+mkdir -p certs
+
+/usr/bin/security find-certificate -a -p /System/Library/Keychains/SystemRootCertificates.keychain > certs/macos-ca-bundle.pem
+/usr/bin/security find-certificate -a -p /Library/Keychains/System.keychain >> certs/macos-ca-bundle.pem
+
+count="$(grep -c 'BEGIN CERTIFICATE' certs/macos-ca-bundle.pem || true)"
+echo "Wrote certs/macos-ca-bundle.pem with ${count} certificates."

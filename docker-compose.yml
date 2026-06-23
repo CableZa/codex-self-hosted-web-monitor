@@ -1,0 +1,69 @@
+x-monitor-environment: &monitor-environment
+  CODEX_HOME: /codex
+  MONITOR_DB: /data/monitor.sqlite3
+  TIMEZONE: ${TIMEZONE:-UTC}
+  PRICING_MODE: ${PRICING_MODE:-credits}
+  FX_LIVE_ENABLED: ${FX_LIVE_ENABLED:-false}
+  USD_ZAR_FALLBACK_RATE: ${USD_ZAR_FALLBACK_RATE:-18.50}
+  DAILY_BUDGET_CREDITS: ${DAILY_BUDGET_CREDITS:-}
+  WEEKLY_BUDGET_CREDITS: ${WEEKLY_BUDGET_CREDITS:-}
+  MONTHLY_BUDGET_CREDITS: ${MONTHLY_BUDGET_CREDITS:-}
+  WEBHOOK_URL: ${WEBHOOK_URL:-}
+  DASHBOARD_URL: ${DASHBOARD_URL:-http://127.0.0.1:18787}
+  DASHBOARD_MODE: ${DASHBOARD_MODE:-full}
+  VALKEY_URL: ${VALKEY_URL:-redis://valkey:6379/0}
+  CACHE_KEY_PREFIX: ${CACHE_KEY_PREFIX:-codex-monitor}
+  CACHE_MEMORY_FALLBACK_MODE: ${CACHE_MEMORY_FALLBACK_MODE:-disabled}
+  MONITOR_API_WORKERS: ${MONITOR_API_WORKERS:-1}
+  TODAY_CACHE_TTL_SECONDS: ${TODAY_CACHE_TTL_SECONDS:-90}
+  HISTORIC_CACHE_TTL_SECONDS: ${HISTORIC_CACHE_TTL_SECONDS:-604800}
+  DEFAULT_DAYS_BACK: ${DEFAULT_DAYS_BACK:-30}
+  MAX_DATE_RANGE_DAYS: ${MAX_DATE_RANGE_DAYS:-366}
+  MAX_ACCOUNT_FILTERS: ${MAX_ACCOUNT_FILTERS:-50}
+  MAX_ALERT_LIMIT: ${MAX_ALERT_LIMIT:-200}
+  FX_FALLBACK_RETRY_SECONDS: ${FX_FALLBACK_RETRY_SECONDS:-3600}
+  CUSTOM_CA_BUNDLE: ${CUSTOM_CA_BUNDLE:-}
+  LOG_LEVEL: ${LOG_LEVEL:-INFO}
+  DEBUG_TIMING_ENABLED: ${DEBUG_TIMING_ENABLED:-true}
+  UPDATE_STATUS_PATH: ${UPDATE_STATUS_PATH:-/runtime/update-status.json}
+
+x-monitor-volumes: &monitor-volumes
+  - ${CODEX_HOST_HOME:-~/.codex}:/codex:ro
+  - ./certs:/certs:ro
+  - ./runtime:/runtime:ro
+  - monitor-data:/data
+
+services:
+  monitor:
+    build: .
+    ports:
+      - "127.0.0.1:18787:8787"
+    environment:
+      <<: *monitor-environment
+      SCANNER_ENABLED: "false"
+    volumes: *monitor-volumes
+    restart: unless-stopped
+    depends_on:
+      - valkey
+
+  scanner:
+    build: .
+    command: ["python", "-m", "codex_monitor.scanner"]
+    environment:
+      <<: *monitor-environment
+      SCANNER_ENABLED: "true"
+    volumes: *monitor-volumes
+    restart: unless-stopped
+    depends_on:
+      - valkey
+
+  valkey:
+    image: valkey/valkey:8-alpine
+    command: ["valkey-server", "--appendonly", "yes", "--save", "60", "1"]
+    volumes:
+      - valkey-data:/data
+    restart: unless-stopped
+
+volumes:
+  monitor-data:
+  valkey-data:

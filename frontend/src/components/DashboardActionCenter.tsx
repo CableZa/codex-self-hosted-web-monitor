@@ -74,13 +74,14 @@ function burnActionCopy(advisory: BurnAdvisory, focusedAccount: string) {
 function updateStatusAction(updateStatus?: UpdateStatus): ActionItem | null {
   if (!updateStatus) return null;
   if (updateStatus.state === "update_available") {
+    const command = updateStatus.manual_update_command || "python scripts/update-monitor.py apply";
     return {
       id: "update-available",
-      signature: signalSignature("update-available", "warning", updateStatus.latest_version, updateStatus.latest_tag, updateStatus.message),
+      signature: signalSignature("update-available", "warning", updateStatus.latest_version, updateStatus.latest_tag, command, updateStatus.message),
       rank: 62,
       severity: "warning",
       title: "Update available",
-      detail: updateStatus.latest_version ? `Version ${updateStatus.latest_version} is ready locally.` : updateStatus.message || "A newer version is available.",
+      detail: updateStatus.latest_version ? `Version ${updateStatus.latest_version} is ready. Run ${command} from the repo root when ready.` : updateStatus.message || `A newer version is available. Run ${command} from the repo root when ready.`,
       value: updateStatus.latest_tag || undefined,
       icon: <Server className="h-4 w-4" />,
     };

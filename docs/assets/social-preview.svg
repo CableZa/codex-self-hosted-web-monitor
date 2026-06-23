@@ -40,6 +40,6 @@
     <path d="M586 472 C612 350 642 332 672 420 S734 348 750 340 S788 476 826 472 S874 354 904 368 S948 328 980 442 S1034 472 1068 472 S1094 386 1110 400" fill="none" stroke="#f28aaa" stroke-width="6"/>
     <path d="M586 468 C652 466 682 466 716 468 S786 452 820 468 S904 448 940 468 S1030 456 1110 468" fill="none" stroke="#c99af4" stroke-width="7"/>
     <rect x="1038" y="108" width="104" height="34" rx="17" fill="#271f31" stroke="#735c87"/>
-    <text x="1070" y="130" class="tiny">v0.16.0</text>
+    <text x="1070" y="130" class="tiny">v0.17.0</text>
   </g>
 </svg>

@@ -26,11 +26,22 @@ x-monitor-environment: &monitor-environment
   LOG_LEVEL: ${LOG_LEVEL:-INFO}
   DEBUG_TIMING_ENABLED: ${DEBUG_TIMING_ENABLED:-true}
   UPDATE_STATUS_PATH: ${UPDATE_STATUS_PATH:-/runtime/update-status.json}
+  UPDATE_CHECK_ENABLED: ${UPDATE_CHECK_ENABLED:-true}
+  UPDATE_CHECK_INTERVAL_SECONDS: ${UPDATE_CHECK_INTERVAL_SECONDS:-21600}
+  UPDATE_CHECK_TIMEOUT_SECONDS: ${UPDATE_CHECK_TIMEOUT_SECONDS:-8}
+  UPDATE_CHECK_TAGS_URL: ${UPDATE_CHECK_TAGS_URL:-https://api.github.com/repos/CableZa/codex-self-hosted-web-monitor/tags?per_page=100}
+  UPDATE_INSTALL_MODE: ${UPDATE_INSTALL_MODE:-docker}
 
 x-monitor-volumes: &monitor-volumes
   - ${CODEX_HOST_HOME:-~/.codex}:/codex:ro
   - ./certs:/certs:ro
   - ./runtime:/runtime:ro
+  - monitor-data:/data
+
+x-scanner-volumes: &scanner-volumes
+  - ${CODEX_HOST_HOME:-~/.codex}:/codex:ro
+  - ./certs:/certs:ro
+  - ./runtime:/runtime
   - monitor-data:/data
 
 services:
@@ -52,7 +63,7 @@ services:
     environment:
       <<: *monitor-environment
       SCANNER_ENABLED: "true"
-    volumes: *monitor-volumes
+    volumes: *scanner-volumes
     restart: unless-stopped
     depends_on:
       - valkey

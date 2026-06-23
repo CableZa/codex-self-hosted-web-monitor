@@ -41,6 +41,11 @@ class AppConfig:
     cache_memory_fallback_mode: str
     monitor_api_workers: int
     update_status_path: Path
+    update_check_enabled: bool
+    update_check_interval_seconds: int
+    update_check_timeout_seconds: int
+    update_check_tags_url: str
+    update_install_mode: str
     debug_timing_enabled: bool
     scanner_enabled: bool
 
@@ -74,6 +79,14 @@ class AppConfig:
             cache_memory_fallback_mode=os.environ.get("CACHE_MEMORY_FALLBACK_MODE", "single-worker"),
             monitor_api_workers=int(os.environ.get("MONITOR_API_WORKERS", "1")),
             update_status_path=Path(os.environ.get("UPDATE_STATUS_PATH", script_dir / "runtime" / "update-status.json")),
+            update_check_enabled=bool_env("UPDATE_CHECK_ENABLED", True),
+            update_check_interval_seconds=int(os.environ.get("UPDATE_CHECK_INTERVAL_SECONDS", "21600")),
+            update_check_timeout_seconds=int(os.environ.get("UPDATE_CHECK_TIMEOUT_SECONDS", "8")),
+            update_check_tags_url=os.environ.get(
+                "UPDATE_CHECK_TAGS_URL",
+                "https://api.github.com/repos/CableZa/codex-self-hosted-web-monitor/tags?per_page=100",
+            ),
+            update_install_mode=os.environ.get("UPDATE_INSTALL_MODE", "auto"),
             debug_timing_enabled=bool_env("DEBUG_TIMING_ENABLED", True),
             scanner_enabled=bool_env("SCANNER_ENABLED", True),
         )

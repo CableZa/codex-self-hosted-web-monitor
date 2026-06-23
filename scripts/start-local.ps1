@@ -92,6 +92,7 @@ if (-not $codexHome -or $codexHome -eq "/codex") {
 $env:TIMEZONE = if ($env:TIMEZONE) { $env:TIMEZONE } else { "UTC" }
 $env:MONITOR_DB = $dbFile
 $env:UPDATE_STATUS_PATH = $updateStatusPath
+$env:UPDATE_INSTALL_MODE = if ($env:UPDATE_INSTALL_MODE) { $env:UPDATE_INSTALL_MODE } else { "local" }
 if (-not $env:VALKEY_URL -or $env:VALKEY_URL -match "://valkey(:|/)") {
     $env:VALKEY_URL = "redis://127.0.0.1:6379/0"
 }

@@ -37,7 +37,7 @@
     <path d="M47 43c7-17 13-17 20 0 6-12 12-14 18-6" fill="none" stroke="#6ee7d8" stroke-width="3" stroke-linecap="round"/>
     <circle cx="64" cy="33" r="5" fill="none" stroke="#6ee7d8" stroke-width="3"/>
     <text x="94" y="38" class="label">Codex Monitor</text>
-    <text x="94" y="60" class="tiny">v0.16.0</text>
+    <text x="94" y="60" class="tiny">v0.17.0</text>
     <rect x="318" y="8" width="568" height="46" class="chip"/>
     <rect x="324" y="12" width="132" height="38" rx="4" class="chipOn"/>
     <text x="354" y="35" font-size="14" font-weight="850" fill="#18121f">Dashboard</text>

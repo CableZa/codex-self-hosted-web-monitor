@@ -7,6 +7,7 @@ import { SessionsTab } from "./components/SessionsTab";
 import { SettingsTab } from "./components/SettingsTab";
 import { ChangelogDialog } from "./components/ChangelogDialog";
 import { DataLoadingOverlay, ErrorBlock, QueryStateBar } from "./components/DashboardPrimitives";
+import { UpdateNotice } from "./components/UpdateNotice";
 import { useLocalPreference } from "./lib/localPreference";
 import {
   fetchAccounts,
@@ -71,6 +72,7 @@ export function App() {
   const [showChangelog, setShowChangelog] = useState(false);
   const [reloadNotice, setReloadNotice] = useState<string | null>(null);
   const [memoryCacheWarningDismissed, setMemoryCacheWarningDismissed] = useLocalPreference("codex-monitor-memory-cache-warning-dismissed", false);
+  const [dismissedUpdateSignature, setDismissedUpdateSignature] = useLocalPreference("codex-monitor-dismissed-update-signature", "");
   const loadedVersionRef = useRef<string | null>(null);
   const eventSourceHadErrorRef = useRef(false);
   const queryClient = useQueryClient();
@@ -408,6 +410,11 @@ export function App() {
             ) : null}
 
             {firstError ? <ErrorBlock message={(firstError as Error).message} /> : null}
+            <UpdateNotice
+              updateStatus={updateStatus.data}
+              dismissedSignature={dismissedUpdateSignature}
+              onDismiss={setDismissedUpdateSignature}
+            />
             {showMemoryCacheWarning ? (
               <div className="rounded-md border border-accent/45 bg-accent/10 px-4 py-3 text-sm text-ink shadow-sm">
                 <div className="flex items-start justify-between gap-3">

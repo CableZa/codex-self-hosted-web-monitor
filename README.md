@@ -62,7 +62,7 @@ Check remote updates from either install style:
 python scripts/update-monitor.py check
 ```
 
-This check is not automatic by default. It writes `runtime/update-status.json`, which the dashboard reads through `/api/update-status`. To apply an available update, run `python scripts/update-monitor.py apply` from a clean worktree. Docker installs rebuild `monitor`, `scanner`, and `valkey`; local Windows installs stop and restart the PowerShell-managed local service. Use an external scheduler such as cron, Task Scheduler, or launchd if you want periodic checks.
+The scanner also checks for newer stable release tags periodically and writes `runtime/update-status.json`, which the dashboard reads through `/api/update-status`. When an update is available, the dashboard shows the manual command to run from the repo root. To apply an available update yourself, run `python scripts/update-monitor.py apply` from a clean worktree or use `./scripts/update-and-redeploy` for Docker installs. Docker installs rebuild `monitor`, `scanner`, and `valkey`; local Windows installs stop and restart the PowerShell-managed local service.
 
 The monitor:
 

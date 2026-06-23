@@ -15,7 +15,7 @@
   and stop with:
   `powershell -ExecutionPolicy Bypass -File .\scripts\stop-local.ps1`
 - For user updates, prefer `./scripts/update-and-redeploy`; for redeploying the current checkout, use `./scripts/redeploy`, then check `/healthz`.
-- For remote update detection, run `python scripts/update-monitor.py check`. This is manual unless an external scheduler is configured. It writes `runtime/update-status.json`, which the dashboard exposes through `/api/update-status`.
+- The scanner checks remote release tags on a schedule and writes `runtime/update-status.json`, which the dashboard exposes through `/api/update-status`. You can also run `python scripts/update-monitor.py check` manually.
 - Use `python scripts/update-monitor.py apply` only from a clean worktree. It runs `git pull --ff-only`, then redeploys Docker installs with Docker Compose or restarts local Windows installs with the PowerShell scripts.
 - Normal deploys must preserve runtime state. Prefer `docker-compose up --build -d ...` or `docker-compose restart ...`.
 - Local Windows installs store runtime SQLite state in repo-root `monitor.sqlite3`; Docker installs store it in the `monitor-data` volume.

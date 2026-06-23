@@ -451,6 +451,9 @@ class UpdateStatusResponse(FlexibleModel):
     latest_tag: str | None = None
     install_mode: str | None = None
     remote: str | None = None
+    check_mode: str | None = None
+    source_url: str | None = None
+    manual_update_command: str | None = None
     message: str | None = None
     error: str | None = None
     stale: bool = False

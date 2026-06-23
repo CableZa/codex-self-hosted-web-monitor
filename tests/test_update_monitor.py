@@ -5,6 +5,8 @@ import unittest
 from pathlib import Path
 from unittest.mock import patch
 
+from codex_monitor import update_status
+
 
 MODULE_PATH = Path(__file__).resolve().parents[1] / "scripts" / "update-monitor.py"
 
@@ -56,3 +58,38 @@ class UpdateMonitorTests(unittest.TestCase):
         self.assertEqual(status["state"], "update_available")
         self.assertEqual(status["latest_version"], "0.8.0")
         self.assertIsNone(status["latest_tag"])
+
+    def test_github_tags_ignore_prerelease_and_pick_latest_stable(self):
+        latest = update_status.latest_tag_from_github_tags(
+            [
+                {"name": "v0.8.0-beta.1"},
+                {"name": "v0.7.10"},
+                {"name": "v0.8.0"},
+                {"name": "not-a-version"},
+            ]
+        )
+
+        self.assertEqual(latest, ("0.8.0", "v0.8.0"))
+
+    def test_update_state_from_latest_reports_available_with_manual_command(self):
+        status = update_status.update_state_from_latest(
+            current_version="0.7.0",
+            running_version="0.7.0",
+            latest_version="0.8.0",
+            latest_tag="v0.8.0",
+            install_mode="docker",
+            check_mode="builtin_http",
+            source_url="https://example.test/tags",
+        )
+
+        self.assertEqual(status["state"], "update_available")
+        self.assertEqual(status["manual_update_command"], "./scripts/update-and-redeploy")
+        self.assertEqual(status["check_mode"], "builtin_http")
+        self.assertEqual(status["source_url"], "https://example.test/tags")
+
+    def test_fresh_updating_status_preserves_manual_update_progress(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            path = Path(tmp) / "update-status.json"
+            update_status.write_status(path, {"state": "updating"})
+
+            self.assertTrue(update_status.fresh_updating_status(path, 3600))

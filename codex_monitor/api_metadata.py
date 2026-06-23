@@ -8,6 +8,7 @@ from pathlib import Path
 from typing import Any
 
 from . import api_store as store_module
+from .update_status import manual_update_command
 from .version import APP_VERSION
 
 UPDATE_STATUS_PATH = store_module.SCRIPT_DIR / "runtime" / "update-status.json"
@@ -97,6 +98,7 @@ def read_update_status(path: Any = None) -> dict[str, Any]:
             "state": "unavailable",
             "generated_at": generated_at,
             "current_version": APP_VERSION,
+            "manual_update_command": manual_update_command(None),
             "message": "No host update status has been written.",
         }
     try:
@@ -106,12 +108,14 @@ def read_update_status(path: Any = None) -> dict[str, Any]:
             "state": "checking_failed",
             "generated_at": generated_at,
             "current_version": APP_VERSION,
+            "manual_update_command": manual_update_command(None),
             "message": "Could not read host update status.",
             "error": str(exc),
         }
 
     status.setdefault("generated_at", generated_at)
     status.setdefault("current_version", APP_VERSION)
+    status.setdefault("manual_update_command", manual_update_command(status.get("install_mode")))
     try:
         age_seconds = datetime.now(timezone.utc).timestamp() - status_path.stat().st_mtime
         status["stale"] = age_seconds > UPDATE_STATUS_MAX_AGE_SECONDS

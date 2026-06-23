@@ -190,6 +190,7 @@ SCRIPT_DIR = store_module.SCRIPT_DIR
 STATIC_DIR = SCRIPT_DIR / "static"
 CHANGELOG_PATH = SCRIPT_DIR / "CHANGELOG.md"
 UPDATE_STATUS_PATH = SCRIPT_DIR / "runtime" / "update-status.json"
+UPDATE_CHECK_ENABLED, UPDATE_CHECK_INTERVAL_SECONDS, UPDATE_CHECK_TIMEOUT_SECONDS, UPDATE_CHECK_TAGS_URL, UPDATE_INSTALL_MODE = (True, 21600, 8, "https://api.github.com/repos/CableZa/codex-self-hosted-web-monitor/tags?per_page=100", "auto")
 SCHEMA_PATH = store_module.SCHEMA_PATH
 DEFAULT_DB = store_module.DEFAULT_DB
 DEFAULT_TZ = dates_module.DEFAULT_TZ
@@ -257,6 +258,7 @@ class AppState:
 
 def configure_runtime(config: AppConfig, application: FastAPI | None = None) -> AppState:
     global STATIC_DIR, SCHEMA_PATH, DEFAULT_DB, DEFAULT_TZ, SUMMARY_TIMES, VALKEY_URL, UPDATE_STATUS_PATH
+    global UPDATE_CHECK_ENABLED, UPDATE_CHECK_INTERVAL_SECONDS, UPDATE_CHECK_TIMEOUT_SECONDS, UPDATE_CHECK_TAGS_URL, UPDATE_INSTALL_MODE
     global TODAY_CACHE_TTL_SECONDS, HISTORIC_CACHE_TTL_SECONDS, LATEST_SNAPSHOT_TTL_SECONDS, DEFAULT_DAYS_BACK
     global MAX_DATE_RANGE_DAYS, MAX_ACCOUNT_FILTERS, MAX_ALERT_LIMIT, MATERIALIZED_DAYS_BACK
     global AUTH_SNAPSHOT_SOURCE, FX_LIVE_ENABLED, FX_FALLBACK_RETRY_SECONDS, USAGE_AGGREGATE_CACHE_SCHEMA
@@ -267,6 +269,7 @@ def configure_runtime(config: AppConfig, application: FastAPI | None = None) -> 
     STATIC_DIR = config.static_dir
     SCHEMA_PATH = config.schema_path
     UPDATE_STATUS_PATH = config.update_status_path
+    UPDATE_CHECK_ENABLED, UPDATE_CHECK_INTERVAL_SECONDS, UPDATE_CHECK_TIMEOUT_SECONDS, UPDATE_CHECK_TAGS_URL, UPDATE_INSTALL_MODE = (config.update_check_enabled, config.update_check_interval_seconds, config.update_check_timeout_seconds, config.update_check_tags_url, config.update_install_mode)
     DEFAULT_DB = config.db_path
     DEFAULT_TZ = config.timezone
     SUMMARY_TIMES = config.summary_times

@@ -2,6 +2,13 @@
 
 ## Unreleased
 
+## v0.17.0 - 2026-06-23
+
+### Added
+
+- Added passive release checks from the scanner so Docker and local installs can detect newer stable tags without requiring a host scheduler.
+- Added a dashboard update notice with the manual update command, copy action, and per-version dismissal.
+
 ### Fixed
 
 - Adjusted the dashboard preview asset so header controls, chart toggles, and account cards fit at README thumbnail scale.

@@ -196,6 +196,7 @@ No unreleased changes.
         body = response.json()
         self.assertEqual(body["state"], "unavailable")
         self.assertEqual(body["current_version"], self.monitor_api.APP_VERSION)
+        self.assertEqual(body["manual_update_command"], "python scripts/update-monitor.py apply")
 
     def test_update_status_route_reads_host_status(self):
         status_path = Path(self.tmp.name) / "update-status.json"
@@ -211,7 +212,24 @@ No unreleased changes.
         body = response.json()
         self.assertEqual(body["state"], "update_available")
         self.assertEqual(body["latest_version"], "0.8.0")
+        self.assertEqual(body["manual_update_command"], "python scripts/update-monitor.py apply")
         self.assertFalse(body["stale"])
+
+    def test_update_status_route_returns_update_metadata(self):
+        status_path = Path(self.tmp.name) / "update-status.json"
+        status_path.write_text(
+            '{"state":"update_available","current_version":"0.7.1","latest_version":"0.8.0","latest_tag":"v0.8.0","install_mode":"docker","check_mode":"builtin_http","source_url":"https://example.test/tags","generated_at":"2026-06-05T10:00:00+00:00"}',
+            encoding="utf-8",
+        )
+
+        with patch.object(self.monitor_api, "UPDATE_STATUS_PATH", status_path):
+            response = self.client.get("/api/update-status")
+
+        self.assertEqual(response.status_code, 200)
+        body = response.json()
+        self.assertEqual(body["check_mode"], "builtin_http")
+        self.assertEqual(body["source_url"], "https://example.test/tags")
+        self.assertEqual(body["manual_update_command"], "./scripts/update-and-redeploy")
 
     def test_root_serves_static_index(self):
         response = self.client.get("/")

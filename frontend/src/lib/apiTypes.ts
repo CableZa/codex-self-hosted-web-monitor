@@ -413,6 +413,9 @@ export type UpdateStatus = {
   latest_tag?: string | null;
   install_mode?: string | null;
   remote?: string | null;
+  check_mode?: string | null;
+  source_url?: string | null;
+  manual_update_command?: string | null;
   message?: string | null;
   error?: string | null;
   stale?: boolean;

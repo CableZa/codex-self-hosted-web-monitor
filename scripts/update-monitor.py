@@ -10,37 +10,26 @@ import sys
 import time
 import urllib.error
 import urllib.request
-from dataclasses import dataclass
-from datetime import datetime, timezone
 from pathlib import Path
 from typing import Any
 
 REPO_ROOT = Path(__file__).resolve().parents[1]
+sys.path.insert(0, str(REPO_ROOT))
+
+from codex_monitor.update_status import (  # noqa: E402
+    SemVer,
+    checking_failed_status,
+    latest_tag_from_names,
+    manual_update_command,
+    update_state_from_latest,
+    utc_now,
+    write_status,
+)
+
 STATUS_PATH = REPO_ROOT / "runtime" / "update-status.json"
 HEALTH_URL = "http://127.0.0.1:18787/healthz"
 SEMVER_TAG_RE = re.compile(r"^v(?P<version>\d+\.\d+\.\d+)$")
 APP_VERSION_RE = re.compile(r'^APP_VERSION\s*=\s*"(?P<version>[^"]+)"\s*$')
-
-
-@dataclass(frozen=True, order=True)
-class SemVer:
-    major: int
-    minor: int
-    patch: int
-
-    @classmethod
-    def parse(cls, value: str) -> "SemVer":
-        match = re.match(r"^v?(\d+)\.(\d+)\.(\d+)$", value.strip())
-        if not match:
-            raise ValueError(f"invalid semver: {value}")
-        return cls(*(int(part) for part in match.groups()))
-
-    def __str__(self) -> str:
-        return f"{self.major}.{self.minor}.{self.patch}"
-
-
-def utc_now() -> str:
-    return datetime.now(timezone.utc).isoformat()
 
 
 def run_command(args: list[str], check: bool = True) -> subprocess.CompletedProcess[str]:
@@ -86,20 +75,17 @@ def git_available() -> bool:
 
 def latest_remote_tag(remote: str) -> tuple[str, str]:
     result = run_command(["git", "ls-remote", "--tags", "--refs", remote, "v*.*.*"])
-    candidates: list[tuple[SemVer, str]] = []
+    names: list[str] = []
     for line in result.stdout.splitlines():
         parts = line.split()
         if len(parts) != 2:
             continue
         tag = parts[1].removeprefix("refs/tags/")
-        match = SEMVER_TAG_RE.match(tag)
-        if not match:
-            continue
-        candidates.append((SemVer.parse(match.group("version")), tag))
-    if not candidates:
-        raise RuntimeError(f"no stable v*.*.* tags found on {remote}")
-    latest_version, latest_tag = sorted(candidates)[-1]
-    return str(latest_version), latest_tag
+        names.append(tag)
+    try:
+        return latest_tag_from_names(names)
+    except RuntimeError as exc:
+        raise RuntimeError(f"no stable v*.*.* tags found on {remote}") from exc
 
 
 def dirty_worktree() -> str:
@@ -161,41 +147,30 @@ def update_state(remote: str, health_url: str, install_mode: str) -> dict[str, A
             "latest_tag": None,
             "install_mode": install_mode,
             "remote": remote,
+            "check_mode": "host_git",
+            "source_url": None,
+            "manual_update_command": manual_update_command(install_mode),
             "message": "This checkout does not have git metadata, so remote updates cannot be checked.",
         }
 
     latest_version, latest_tag = latest_remote_tag(remote)
-    compare_version = active_version or checkout_version
-    state = "up_to_date"
-    message = "Running version is current."
-    if SemVer.parse(latest_version) > SemVer.parse(compare_version):
-        state = "update_available"
-        message = f"Version {latest_version} is available."
-    elif active_version and SemVer.parse(checkout_version) > SemVer.parse(active_version):
-        state = "update_available"
-        latest_version = checkout_version
-        latest_tag = None
-        message = f"Checkout version {checkout_version} is newer than the running monitor."
+    status = update_state_from_latest(
+        current_version=checkout_version,
+        running_version=active_version,
+        latest_version=latest_version,
+        latest_tag=latest_tag,
+        install_mode=install_mode,
+        check_mode="host_git",
+        remote=remote,
+    )
+    if active_version and SemVer.parse(checkout_version) > SemVer.parse(active_version):
+        status["state"] = "update_available"
+        status["latest_version"] = checkout_version
+        status["latest_tag"] = None
+        status["message"] = f"Checkout version {checkout_version} is newer than the running monitor."
 
-    return {
-        "state": state,
-        "checked_at": checked_at,
-        "current_version": checkout_version,
-        "running_version": active_version,
-        "latest_version": latest_version,
-        "latest_tag": latest_tag,
-        "install_mode": install_mode,
-        "remote": remote,
-        "message": message,
-    }
-
-
-def write_status(path: Path, status: dict[str, Any]) -> None:
-    path.parent.mkdir(parents=True, exist_ok=True)
-    payload = {"generated_at": utc_now(), **status}
-    tmp_path = path.with_suffix(f"{path.suffix}.tmp")
-    tmp_path.write_text(json.dumps(payload, indent=2, sort_keys=True) + "\n", encoding="utf-8")
-    tmp_path.replace(path)
+    status["checked_at"] = checked_at
+    return status
 
 
 def check_updates(args: argparse.Namespace) -> dict[str, Any]:
@@ -203,18 +178,14 @@ def check_updates(args: argparse.Namespace) -> dict[str, Any]:
     try:
         status = update_state(args.remote, args.health_url, install_mode)
     except Exception as exc:
-        status = {
-            "state": "checking_failed",
-            "checked_at": utc_now(),
-            "current_version": safe_checkout_version(),
-            "running_version": running_version(args.health_url),
-            "latest_version": None,
-            "latest_tag": None,
-            "install_mode": install_mode,
-            "remote": args.remote,
-            "message": "Update check failed.",
-            "error": str(exc),
-        }
+        status = checking_failed_status(
+            current_version=safe_checkout_version(),
+            running_version=running_version(args.health_url),
+            install_mode=install_mode,
+            check_mode="host_git",
+            remote=args.remote,
+            error=exc,
+        )
     write_status(args.status_path, status)
     return status
 

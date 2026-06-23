@@ -5,8 +5,8 @@
 Use git tags as the source of truth for public releases:
 
 ```sh
-git tag v0.16.0
-git push origin v0.16.0
+git tag v0.17.0
+git push origin v0.17.0
 ```
 
 The updater looks for stable `v*.*.*` tags on the configured remote. It compares the latest tag with the version reported by `/healthz`, then writes the result to `runtime/update-status.json` for the dashboard.
@@ -16,7 +16,8 @@ Recommended defaults:
 - publish normal releases from `main` with a semver tag
 - keep user state outside git in Docker volumes or the local SQLite database
 - require a clean worktree before applying updates
-- use an external scheduler for automatic checks or automatic apply
+- use the built-in passive checker for update notices
+- use an external scheduler only if you want unattended apply
 
 ## Docker Install
 
@@ -69,9 +70,23 @@ Invoke-RestMethod http://127.0.0.1:18787/healthz
 
 This keeps the repo-root `monitor.sqlite3` database. Do not delete it unless you intend to reset local dashboard state.
 
-## Remote Update Check
+## Passive Update Check
 
-Update detection uses the configured git remote and existing credentials:
+The scanner checks for newer stable `v*.*.*` tags on a schedule and writes `runtime/update-status.json`. Docker gives the scanner write access to `./runtime`, while the API reads the same status file through `/api/update-status`.
+
+When a newer version is available, the dashboard shows a persistent update notice with the manual command to run. The app does not apply updates from the browser.
+
+Configure passive checks with:
+
+```sh
+UPDATE_CHECK_ENABLED=true
+UPDATE_CHECK_INTERVAL_SECONDS=21600
+UPDATE_CHECK_TAGS_URL=https://api.github.com/repos/CableZa/codex-self-hosted-web-monitor/tags?per_page=100
+```
+
+## Manual Remote Update Check
+
+You can still run a host-side check against the configured git remote and existing credentials:
 
 ```sh
 python scripts/update-monitor.py check
@@ -87,11 +102,11 @@ For Docker installs, `apply` runs `git pull --ff-only`, rebuilds `monitor`, `sca
 
 For local PowerShell installs, `apply` runs `git pull --ff-only`, calls `scripts/stop-local.ps1`, calls `scripts/start-local.ps1`, then waits for `/healthz`.
 
-The checker writes `runtime/update-status.json`. Docker reads that file through the read-only `/runtime` mount, and local Windows runs read it from the repo.
+The manual checker writes the same `runtime/update-status.json` file read by the dashboard.
 
 ## Scheduling Updates
 
-For unattended checks, schedule the check command:
+Passive checks are built in. If you prefer a host scheduler, schedule the check command:
 
 ```sh
 python scripts/update-monitor.py check

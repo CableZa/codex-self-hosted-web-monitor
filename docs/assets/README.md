@@ -2,9 +2,9 @@
 
 This folder contains the README logo and GitHub social preview artwork.
 
-`dashboard-preview.png` is rendered from the real dashboard with deterministic demo API data. Keep local account data out of this file.
+`dashboard-preview.png` and `dashboard-preview-dark.png` are rendered from the real dashboard with deterministic demo API data. Keep local account data out of these files.
 
-Regenerate the dashboard preview from the repo root:
+Regenerate the dashboard previews from the repo root:
 
 ```sh
 npm run docs:preview

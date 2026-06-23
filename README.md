@@ -5,7 +5,11 @@
 <h1 align="center">Codex Self-Hosted Web Monitor</h1>
 
 <p align="center">
-  <img src="docs/assets/dashboard-preview.png" alt="Codex Self-Hosted Web Monitor dashboard preview rendered with demo data" width="960">
+  <img src="docs/assets/dashboard-preview.png" alt="Codex Self-Hosted Web Monitor dashboard preview rendered with demo data in light mode" width="960">
+</p>
+
+<p align="center">
+  <img src="docs/assets/dashboard-preview-dark.png" alt="Codex Self-Hosted Web Monitor dashboard preview rendered with demo data in dark mode" width="960">
 </p>
 
 Monitor local Codex credit usage from `~/.codex/sessions` and `~/.codex/archived_sessions`.

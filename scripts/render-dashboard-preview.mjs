@@ -3,7 +3,10 @@ import { dirname, resolve } from "node:path";
 import { chromium } from "playwright";
 import { createServer } from "vite";
 
-const outputPath = resolve("docs/assets/dashboard-preview.png");
+const previews = [
+  { colorScheme: "light", outputPath: resolve("docs/assets/dashboard-preview.png") },
+  { colorScheme: "dark", outputPath: resolve("docs/assets/dashboard-preview-dark.png") },
+];
 const range = {
   start_at: "2026-06-01T00:00",
   end_at: "2026-06-15T00:00",
@@ -541,12 +544,9 @@ async function routeApi(route) {
 const server = await createServer({ configFile: resolve("vite.config.ts"), server: { host: "127.0.0.1", port: 0 } });
 let browser;
 
-try {
-  await server.listen();
-  const address = server.httpServer?.address();
-  const port = typeof address === "object" && address ? address.port : 5173;
-  browser = await chromium.launch();
+async function renderPreview(port, preview) {
   const page = await browser.newPage({ viewport: { width: 1280, height: 1120 }, deviceScaleFactor: 1 });
+  await page.emulateMedia({ colorScheme: preview.colorScheme });
   await page.route("**/api/**", routeApi);
   await page.addInitScript(() => {
     window.localStorage.clear();
@@ -556,9 +556,20 @@ try {
   await page.getByText("Codex Credit Usage").waitFor({ timeout: 15_000 });
   await page.getByText("Codex Limits").waitFor({ timeout: 15_000 });
   await page.locator(".recharts-responsive-container svg").first().waitFor({ timeout: 15_000 });
-  await mkdir(dirname(outputPath), { recursive: true });
-  await page.screenshot({ path: outputPath });
-  console.log(`Wrote ${outputPath}`);
+  await mkdir(dirname(preview.outputPath), { recursive: true });
+  await page.screenshot({ path: preview.outputPath });
+  await page.close();
+  console.log(`Wrote ${preview.outputPath}`);
+}
+
+try {
+  await server.listen();
+  const address = server.httpServer?.address();
+  const port = typeof address === "object" && address ? address.port : 5173;
+  browser = await chromium.launch();
+  for (const preview of previews) {
+    await renderPreview(port, preview);
+  }
 } finally {
   if (browser) await browser.close();
   await server.close();

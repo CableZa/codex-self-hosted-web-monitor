@@ -2,6 +2,10 @@
 
 ## Unreleased
 
+### Fixed
+
+- Adjusted the dashboard preview asset so header controls, chart toggles, and account cards fit at README thumbnail scale.
+
 ## v0.16.0 - 2026-06-23
 
 ### Initial Release

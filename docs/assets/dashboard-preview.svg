@@ -38,17 +38,17 @@
     <circle cx="64" cy="33" r="5" fill="none" stroke="#6ee7d8" stroke-width="3"/>
     <text x="94" y="38" class="label">Codex Monitor</text>
     <text x="94" y="60" class="tiny">v0.16.0</text>
-    <rect x="330" y="8" width="520" height="46" class="chip"/>
-    <rect x="336" y="12" width="104" height="38" rx="4" class="chipOn"/>
-    <text x="372" y="35" font-size="14" font-weight="850" fill="#18121f">Dashboard</text>
-    <text x="466" y="35" class="small">Sessions</text>
-    <text x="560" y="35" class="small">Settings</text>
-    <rect x="1038" y="16" width="58" height="28" rx="14" class="chip"/>
-    <text x="1059" y="35" class="tiny">Live</text>
-    <rect x="1108" y="16" width="92" height="28" rx="14" class="chip"/>
-    <text x="1134" y="35" class="tiny">Current</text>
-    <rect x="1212" y="13" width="52" height="34" rx="5" class="chip"/>
-    <text x="1222" y="35" class="tiny">Refresh</text>
+    <rect x="318" y="8" width="568" height="46" class="chip"/>
+    <rect x="324" y="12" width="132" height="38" rx="4" class="chipOn"/>
+    <text x="354" y="35" font-size="14" font-weight="850" fill="#18121f">Dashboard</text>
+    <text x="486" y="35" class="small">Sessions</text>
+    <text x="600" y="35" class="small">Settings</text>
+    <rect x="1012" y="16" width="64" height="28" rx="14" class="chip"/>
+    <text x="1034" y="35" class="tiny">Live</text>
+    <rect x="1088" y="16" width="84" height="28" rx="14" class="chip"/>
+    <text x="1110" y="35" class="tiny">Current</text>
+    <rect x="1184" y="13" width="82" height="34" rx="5" class="chip"/>
+    <text x="1204" y="35" class="tiny">Refresh</text>
 
     <text x="34" y="112" class="tiny">Dashboard</text>
     <text x="112" y="112" class="tiny">6/23/2026, 1:56 PM</text>
@@ -83,18 +83,18 @@
     </g>
 
     <rect x="504" y="230" width="718" height="406" rx="7" class="soft"/>
-    <rect x="514" y="242" width="156" height="40" rx="5" class="chip"/>
-    <rect x="518" y="246" width="48" height="32" rx="4" class="chipOn"/>
+    <rect x="514" y="242" width="206" height="40" rx="5" class="chip"/>
+    <rect x="520" y="246" width="58" height="32" rx="4" class="chipOn"/>
     <text x="535" y="267" font-size="12" font-weight="850" fill="#18121f">Daily</text>
-    <text x="590" y="267" class="tiny">Weekly</text>
-    <text x="646" y="267" class="tiny">Monthly</text>
-    <rect x="682" y="242" width="112" height="40" rx="5" class="chip"/>
-    <text x="710" y="267" class="tiny">Bars</text>
-    <rect x="744" y="246" width="44" height="32" rx="4" class="chipOn"/>
-    <text x="755" y="267" font-size="12" font-weight="850" fill="#18121f">Lines</text>
-    <rect x="978" y="246" width="54" height="32" rx="4" class="chipOn"/><text x="992" y="267" font-size="12" font-weight="850" fill="#18121f">Credits</text>
-    <rect x="1040" y="246" width="68" height="32" rx="4" class="chipOn"/><text x="1053" y="267" font-size="12" font-weight="850" fill="#18121f">Cached</text>
-    <rect x="1116" y="246" width="68" height="32" rx="4" class="chipOn"/><text x="1132" y="267" font-size="12" font-weight="850" fill="#18121f">Output</text>
+    <text x="596" y="267" class="tiny">Weekly</text>
+    <text x="660" y="267" class="tiny">Monthly</text>
+    <rect x="736" y="242" width="138" height="40" rx="5" class="chip"/>
+    <text x="760" y="267" class="tiny">Bars</text>
+    <rect x="814" y="246" width="52" height="32" rx="4" class="chipOn"/>
+    <text x="823" y="267" font-size="12" font-weight="850" fill="#18121f">Lines</text>
+    <rect x="922" y="246" width="78" height="32" rx="4" class="chipOn"/><text x="938" y="267" font-size="12" font-weight="850" fill="#18121f">Credits</text>
+    <rect x="1008" y="246" width="78" height="32" rx="4" class="chipOn"/><text x="1021" y="267" font-size="12" font-weight="850" fill="#18121f">Cached</text>
+    <rect x="1094" y="246" width="78" height="32" rx="4" class="chipOn"/><text x="1110" y="267" font-size="12" font-weight="850" fill="#18121f">Output</text>
     <line x1="504" y1="294" x2="1222" y2="294" class="line"/>
     <g transform="translate(558 314)">
       <line x1="0" y1="0" x2="610" y2="0" class="line"/>
@@ -127,12 +127,12 @@
     <text x="1110" y="848" font-size="30" font-weight="900" fill="#f5eff9">17%</text>
     <rect x="790" y="872" width="390" height="8" rx="4" fill="#3b3147"/><rect x="790" y="872" width="66" height="8" rx="4" class="lav"/>
 
-    <rect x="34" y="942" width="590" height="140" rx="8" class="panel"/>
+    <rect x="34" y="942" width="590" height="154" rx="8" class="panel"/>
     <text x="58" y="976" class="label">By Account</text>
-    <rect x="58" y="1002" width="530" height="48" rx="6" class="soft"/>
-    <text x="74" y="1030" class="label">team@example.com</text><text x="438" y="1030" class="value">31.8K credits</text>
-    <rect x="58" y="1058" width="530" height="48" rx="6" class="soft"/>
-    <text x="74" y="1086" class="label">demo@example.com</text><text x="448" y="1086" class="value">11.9K credits</text>
+    <rect x="58" y="998" width="512" height="42" rx="6" class="soft"/>
+    <text x="74" y="1024" class="label">team@example.com</text><text x="418" y="1024" class="value">31.8K credits</text>
+    <rect x="58" y="1048" width="512" height="42" rx="6" class="soft"/>
+    <text x="74" y="1074" class="label">demo@example.com</text><text x="428" y="1074" class="value">11.9K credits</text>
     <rect x="646" y="942" width="570" height="140" rx="8" class="panel"/>
     <text x="670" y="976" class="label">Recent Alerts</text>
     <text x="670" y="1015" class="small">demo@example.com limit exceeded</text><text x="1108" y="1015" fill="#f28aaa" font-size="14" font-weight="850">100%</text>

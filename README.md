@@ -8,9 +8,9 @@
   <img src="docs/assets/dashboard-preview.png" alt="Fictionalized Codex Self-Hosted Web Monitor dashboard preview" width="960">
 </p>
 
-Estimate local Codex token usage from `~/.codex/sessions` and `~/.codex/archived_sessions`.
+Monitor local Codex credit usage from `~/.codex/sessions` and `~/.codex/archived_sessions`.
 
-The primary interface is a localhost-only Docker dashboard. It scans local Codex session files, summarizes usage, and estimates Codex credits for local budgeting.
+This app is primarily for tracking Codex credits, which is most useful for OpenAI Enterprise customers and other workspaces that rate Codex usage in credits. The localhost-only Docker dashboard scans local Codex session files, summarizes usage, and estimates credits for budgeting, chargeback, and account-level limits.
 
 ## Quick Start
 

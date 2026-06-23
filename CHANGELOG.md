@@ -2,6 +2,10 @@
 
 ## Unreleased
 
+### Changed
+
+- Clarified the README positioning around Codex credit monitoring for Enterprise and credit-rated workspaces.
+
 ## v0.17.0 - 2026-06-23
 
 ### Added

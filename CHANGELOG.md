@@ -5,6 +5,7 @@
 ### Changed
 
 - Clarified the README positioning around Codex credit monitoring for Enterprise and credit-rated workspaces.
+- Replaced the hand-drawn dashboard preview source with a real screenshot workflow that renders the app against deterministic demo API data.
 
 ## v0.17.0 - 2026-06-23
 

@@ -16,8 +16,10 @@ jobs:
       - name: Check out repository
         uses: actions/checkout@v7.0.0
 
+      - name: Extract release notes
+        run: python3 scripts/extract-release-notes.py "${GITHUB_REF_NAME}" > release-notes.md
+
       - name: Create GitHub release
         uses: softprops/action-gh-release@v3.0.1
         with:
-          generate_release_notes: true
-          body_path: CHANGELOG.md
+          body_path: release-notes.md

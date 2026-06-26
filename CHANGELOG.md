@@ -15,6 +15,7 @@
 
 ### Fixed
 
+- Made the security audit inventory checks fall back to `grep` when `rg` is not installed on CI runners.
 - Limited GitHub release notes to the matching changelog version so releases no longer include Unreleased or older entries.
 
 ## v0.17.0 - 2026-06-23

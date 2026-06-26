@@ -58,6 +58,75 @@ run_shell_check() {
   run_check "$name" bash -c "$command"
 }
 
+repo_search_regex() {
+  local pattern="$1"
+  if command -v rg >/dev/null 2>&1; then
+    rg -n "$pattern" . -g "!package-lock.json" -g "!static/assets/*.js" -g "!node_modules/**"
+    return
+  fi
+  git grep -nE "$pattern" -- . \
+    ":(exclude)package-lock.json" \
+    ":(exclude)static/assets/*.js" \
+    ":(exclude)node_modules/**"
+}
+
+file_search_regex() {
+  local pattern="$1"
+  local file="$2"
+  if command -v rg >/dev/null 2>&1; then
+    rg -n "$pattern" "$file"
+    return
+  fi
+  grep -nE "$pattern" "$file"
+}
+
+file_search_fixed() {
+  local pattern="$1"
+  local file="$2"
+  if command -v rg >/dev/null 2>&1; then
+    rg -n -F "$pattern" "$file"
+    return
+  fi
+  grep -nF "$pattern" "$file"
+}
+
+command_execution_inventory() {
+  local matches
+  local unexpected
+  matches="$(repo_search_regex "subprocess|os\\.system|shell=True|exec\\(|eval\\(|child_process" || true)"
+  echo "$matches"
+  unexpected="$(printf "%s\n" "$matches" | grep -Ev "scripts/update-monitor.py|scripts/security-audit|docs/trust-and-safety.md" || true)"
+  if [ -n "$unexpected" ]; then
+    echo
+    echo "Unexpected command execution references:"
+    echo "$unexpected"
+    return 1
+  fi
+}
+
+outbound_network_inventory() {
+  repo_search_regex "httpx|urllib|urlopen|fetch\\(|WebSocket|EventSource|https?://" || true
+}
+
+token_handling_inventory() {
+  repo_search_regex "access_token|refresh_token|id_token|api_key|secret|password|Authorization|Bearer|auth\\.json" || true
+}
+
+risky_dynamic_execution_absence() {
+  if repo_search_regex "pickle\\.loads|marshal\\.loads|yaml\\.load\\(|base64\\.b64decode\\(|Function\\("; then
+    return 1
+  fi
+  echo "No risky dynamic execution patterns found."
+}
+
+docker_localhost_bind() {
+  file_search_regex '"127\.0\.0\.1:18787:8787"' docker-compose.yml
+}
+
+codex_mount_read_only() {
+  file_search_fixed '${CODEX_HOST_HOME:-~/.codex}:/codex:ro' docker-compose.yml
+}
+
 echo "# Security Audit Report"
 echo
 echo "- Generated at: $(now_utc)"
@@ -72,46 +141,12 @@ run_check "Python dependency audit" python3 -m pip_audit -r requirements.txt
 run_check "npm production dependency audit" npm audit --omit=dev
 run_check "Bandit static analysis" python3 -m bandit -q -r codex_monitor codex_usage.py codex_usage_constants.py codex_usage_models.py codex_usage_output.py codex_usage_pricing.py codex_usage_reports.py codex_usage_sessions.py monitor_service.py scripts -x tests --skip B404,B603,B310
 
-run_shell_check "Command execution inventory" '
-set -e
-matches="$(rg -n "subprocess|os\\.system|shell=True|exec\\(|eval\\(|child_process" . -g "!package-lock.json" -g "!static/assets/*.js" -g "!node_modules/**" || true)"
-echo "$matches"
-unexpected="$(printf "%s\n" "$matches" | rg -v "scripts/update-monitor.py|scripts/security-audit|docs/trust-and-safety.md" || true)"
-if [ -n "$unexpected" ]; then
-  echo
-  echo "Unexpected command execution references:"
-  echo "$unexpected"
-  exit 1
-fi
-'
-
-run_shell_check "Outbound network inventory" '
-set -e
-rg -n "httpx|urllib|urlopen|fetch\\(|WebSocket|EventSource|https?://" . -g "!package-lock.json" -g "!static/assets/*.js" -g "!node_modules/**" || true
-'
-
-run_shell_check "Token handling inventory" '
-set -e
-rg -n "access_token|refresh_token|id_token|api_key|secret|password|Authorization|Bearer|auth\\.json" . -g "!package-lock.json" -g "!static/assets/*.js" -g "!node_modules/**" || true
-'
-
-run_shell_check "Risky dynamic execution absence" '
-set -e
-if rg -n "pickle\\.loads|marshal\\.loads|yaml\\.load\\(|base64\\.b64decode\\(|Function\\(" . -g "!package-lock.json" -g "!static/assets/*.js" -g "!node_modules/**"; then
-  exit 1
-fi
-echo "No risky dynamic execution patterns found."
-'
-
-run_shell_check "Docker localhost bind" '
-set -e
-rg -n "\"127\\.0\\.0\\.1:18787:8787\"" docker-compose.yml
-'
-
-run_shell_check "Codex mount read-only" '
-set -e
-rg -n -F "\${CODEX_HOST_HOME:-~/.codex}:/codex:ro" docker-compose.yml
-'
+run_check "Command execution inventory" command_execution_inventory
+run_check "Outbound network inventory" outbound_network_inventory
+run_check "Token handling inventory" token_handling_inventory
+run_check "Risky dynamic execution absence" risky_dynamic_execution_absence
+run_check "Docker localhost bind" docker_localhost_bind
+run_check "Codex mount read-only" codex_mount_read_only
 
 echo
 if [ "$FAILURES" -eq 0 ]; then

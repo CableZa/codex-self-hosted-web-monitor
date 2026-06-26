@@ -87,8 +87,8 @@ class JsonCache:
             if client is not None:
                 try:
                     await client.aclose()
-                except Exception:
-                    pass
+                except Exception as close_exc:
+                    logger.debug("cache.valkey.close_failed error=%s", close_exc)
             self.last_error = str(exc)
             self.client = None
             return None
@@ -100,8 +100,8 @@ class JsonCache:
             return
         try:
             await client.aclose()
-        except Exception:
-            pass
+        except Exception as exc:
+            logger.debug("cache.valkey.close_failed error=%s", exc)
 
     async def _clear_remote(self, client: Any) -> bool:
         try:

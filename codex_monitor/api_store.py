@@ -490,10 +490,11 @@ class Store:
             account_clause = f" and account in ({placeholders})"
             params.extend(sorted(account_filter))
         def operation() -> list[dict[str, Any]]:
+            # account_clause only contains generated placeholders; values stay parameterized.
             rows = self.conn.execute(
                 "select * from usage_daily_aggregates "
                 "where cache_version = ? and day >= ? and day <= ?"
-                f"{account_clause}",
+                f"{account_clause}",  # nosec B608
                 tuple(params),
             ).fetchall()
             return [dict(row) for row in rows]

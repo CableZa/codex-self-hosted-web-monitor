@@ -1,0 +1,127 @@
+#!/usr/bin/env bash
+set -u
+
+ROOT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
+TMP_DIR="$(mktemp -d "${TMPDIR:-/tmp}/codex-monitor-security-audit.XXXXXX")"
+FAILURES=0
+
+cleanup() {
+  rm -rf "$TMP_DIR"
+}
+trap cleanup EXIT
+
+cd "$ROOT_DIR" || exit 1
+export NPM_CONFIG_CACHE="${NPM_CONFIG_CACHE:-$TMP_DIR/npm-cache}"
+
+now_utc() {
+  python3 - <<'PY'
+from datetime import datetime, timezone
+print(datetime.now(timezone.utc).isoformat())
+PY
+}
+
+print_output() {
+  local file="$1"
+  if [ -s "$file" ]; then
+    echo
+    echo '```text'
+    sed -n '1,160p' "$file"
+    local lines
+    lines="$(wc -l < "$file" | tr -d ' ')"
+    if [ "$lines" -gt 160 ]; then
+      echo "... output truncated after 160 lines"
+    fi
+    echo '```'
+  fi
+}
+
+run_check() {
+  local name="$1"
+  shift
+  local output="$TMP_DIR/$(echo "$name" | tr ' /' '__').log"
+  echo
+  echo "### $name"
+  if "$@" >"$output" 2>&1; then
+    echo "- Status: pass"
+  else
+    local status=$?
+    echo "- Status: fail"
+    echo "- Exit code: $status"
+    FAILURES=$((FAILURES + 1))
+  fi
+  print_output "$output"
+}
+
+run_shell_check() {
+  local name="$1"
+  local command="$2"
+  run_check "$name" bash -c "$command"
+}
+
+echo "# Security Audit Report"
+echo
+echo "- Generated at: $(now_utc)"
+echo "- Commit: $(git rev-parse --short HEAD 2>/dev/null || echo unknown)"
+echo "- Repository: Codex Self-Hosted Web Monitor"
+
+run_check "Line limit" ./scripts/check-line-limits
+run_check "Frontend lint" npm run lint
+run_check "Frontend tests" npm run test:frontend
+run_check "Python tests" python3 -m pytest
+run_check "Python dependency audit" python3 -m pip_audit -r requirements.txt
+run_check "npm production dependency audit" npm audit --omit=dev
+run_check "Bandit static analysis" python3 -m bandit -q -r codex_monitor codex_usage.py codex_usage_constants.py codex_usage_models.py codex_usage_output.py codex_usage_pricing.py codex_usage_reports.py codex_usage_sessions.py monitor_service.py scripts -x tests --skip B404,B603,B310
+
+run_shell_check "Command execution inventory" '
+set -e
+matches="$(rg -n "subprocess|os\\.system|shell=True|exec\\(|eval\\(|child_process" . -g "!package-lock.json" -g "!static/assets/*.js" -g "!node_modules/**" || true)"
+echo "$matches"
+unexpected="$(printf "%s\n" "$matches" | rg -v "scripts/update-monitor.py|scripts/security-audit|docs/trust-and-safety.md" || true)"
+if [ -n "$unexpected" ]; then
+  echo
+  echo "Unexpected command execution references:"
+  echo "$unexpected"
+  exit 1
+fi
+'
+
+run_shell_check "Outbound network inventory" '
+set -e
+rg -n "httpx|urllib|urlopen|fetch\\(|WebSocket|EventSource|https?://" . -g "!package-lock.json" -g "!static/assets/*.js" -g "!node_modules/**" || true
+'
+
+run_shell_check "Token handling inventory" '
+set -e
+rg -n "access_token|refresh_token|id_token|api_key|secret|password|Authorization|Bearer|auth\\.json" . -g "!package-lock.json" -g "!static/assets/*.js" -g "!node_modules/**" || true
+'
+
+run_shell_check "Risky dynamic execution absence" '
+set -e
+if rg -n "pickle\\.loads|marshal\\.loads|yaml\\.load\\(|base64\\.b64decode\\(|Function\\(" . -g "!package-lock.json" -g "!static/assets/*.js" -g "!node_modules/**"; then
+  exit 1
+fi
+echo "No risky dynamic execution patterns found."
+'
+
+run_shell_check "Docker localhost bind" '
+set -e
+rg -n "\"127\\.0\\.0\\.1:18787:8787\"" docker-compose.yml
+'
+
+run_shell_check "Codex mount read-only" '
+set -e
+rg -n -F "\${CODEX_HOST_HOME:-~/.codex}:/codex:ro" docker-compose.yml
+'
+
+echo
+if [ "$FAILURES" -eq 0 ]; then
+  echo "## Result"
+  echo
+  echo "All security audit checks passed."
+else
+  echo "## Result"
+  echo
+  echo "$FAILURES security audit check(s) failed."
+fi
+
+exit "$FAILURES"

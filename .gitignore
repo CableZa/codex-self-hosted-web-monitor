@@ -24,3 +24,4 @@ runtime/usage-dump-*/
 
 # Local environment files.
 .env
+.venv/

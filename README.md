@@ -89,6 +89,20 @@ cp .env.example .env
 
 Automatic weekly account limits are opt-in. Set `AUTO_ACCOUNT_LIMIT_EMAIL_SUFFIXES` in `.env` if a deployment should create default weekly credit limits for matching account emails. Leave it empty for a generic local setup.
 
+## Trust And Safety
+
+The dashboard is designed for local use. The documented Docker deployment binds the host port to `127.0.0.1:18787` and mounts `~/.codex` read-only inside the containers.
+
+For the full safety model, data-flow notes, outbound network inventory, and reproducible audit command, see [docs/trust-and-safety.md](docs/trust-and-safety.md).
+
+Run the local audit after installing dev dependencies:
+
+```sh
+python3 -m pip install -r requirements.txt -r requirements-dev.txt
+npm ci
+./scripts/security-audit
+```
+
 ## CLI Reports
 
 The CLI is useful for ad hoc exports and checks, but the Web UI is the normal entry point.
@@ -141,6 +155,7 @@ The Docker image runs the same frontend build during `docker-compose up --build`
 ## Documentation
 
 - `docs/setup.md`: first-run installation, startup, `.env.example`, and onboarding guide.
+- `docs/trust-and-safety.md`: local safety model, data flow, network behavior, and reproducible audit steps.
 - `docs/tech-stack.md`: backend, frontend, runtime services, storage, and tooling stack.
 - `docs/configuration.md`: ports, settings, volumes, CA bundle, environment variables.
 - `docs/caching.md`: Valkey cache, TTL policy, historic versus today data.

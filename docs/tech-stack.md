@@ -63,6 +63,8 @@ npm run build
 
 - ESLint 9, TypeScript ESLint, React Hooks lint rules, and React Refresh lint rules validate frontend code.
 - `scripts/check-line-limits` enforces the hard 700-code-line limit for maintained files, excluding blank and comment-only lines and ignoring `package-lock.json`.
+- `scripts/security-audit` runs the reproducible trust-and-safety audit used by CI and releases.
+- `scripts/generate-sbom.py` emits the release SBOM from pinned Python and npm manifests.
 - The Dockerized test runner is `./scripts/test-docker`.
 - Backend tests use Python `unittest`.
 - `docker-compose.test.yml` defines backend and frontend check targets so tests can run without host Python or Node dependencies.
